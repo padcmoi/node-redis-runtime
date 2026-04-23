@@ -1,0 +1,30 @@
+{
+  "name": "@naskot/node-redis-runtime-poc",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "predev": "npm --prefix .. run build",
+    "dev": "nodemon --watch src --ext ts --exec \"node --import tsx ./src/index.ts\"",
+    "prestart": "npm --prefix .. run build",
+    "start": "node --import tsx ./src/index.ts",
+    "lint": "eslint -c ./eslint.config.mjs \"src/**/*.ts\"",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "docker:up": "docker compose -f ./docker-compose.yml up --build",
+    "docker:down": "docker compose -f ./docker-compose.yml down -v"
+  },
+  "dependencies": {
+    "@naskot/node-redis-runtime": "file:..",
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.6.0",
+    "eslint": "^10.2.1",
+    "nodemon": "^3.1.10",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.58.2"
+  }
+}
