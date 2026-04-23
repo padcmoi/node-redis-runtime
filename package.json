@@ -1,10 +1,9 @@
 {
-  "name": "@naskot/<package-name>",
-  "version": "0.0.0",
-  "description": "<short description>",
+  "name": "@naskot/node-redis-runtime",
+  "version": "0.1.0",
+  "description": "Agnostic Redis runtime with persistent store and high-performance cache for Node.js",
   "license": "MIT",
   "type": "module",
-  "private": true,
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -13,20 +12,41 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
+    },
+    "./redisCache": {
+      "types": "./dist/redisCache.d.ts",
+      "import": "./dist/redisCache.js",
+      "require": "./dist/redisCache.cjs"
+    },
+    "./RedisStore": {
+      "types": "./dist/RedisStore.d.ts",
+      "import": "./dist/RedisStore.js",
+      "require": "./dist/RedisStore.cjs"
+    },
+    "./redisShared": {
+      "types": "./dist/redisShared.d.ts",
+      "import": "./dist/redisShared.js",
+      "require": "./dist/redisShared.cjs"
+    },
+    "./service": {
+      "types": "./dist/service.d.ts",
+      "import": "./dist/service.js",
+      "require": "./dist/service.cjs"
     }
   },
   "files": [
     "dist",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "docs"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/padcmoi/<repo-name>.git"
+    "url": "https://github.com/padcmoi/node-redis-runtime.git"
   },
-  "homepage": "https://github.com/padcmoi/<repo-name>",
+  "homepage": "https://github.com/padcmoi/node-redis-runtime",
   "bugs": {
-    "url": "https://github.com/padcmoi/<repo-name>/issues"
+    "url": "https://github.com/padcmoi/node-redis-runtime/issues"
   },
   "engines": {
     "node": ">=18"
@@ -35,21 +55,26 @@
     "access": "public"
   },
   "scripts": {
-    "build": "tsup src/index.ts --format cjs,esm --dts --clean",
+    "build": "tsup src/index.ts src/RedisStore.ts src/redisCache.ts src/redisShared.ts src/service.ts --format cjs,esm --dts --clean",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit",
-    "check": "npm run typecheck",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "check": "npm run lint && npm run typecheck && npm test && npm run build",
     "lint": "eslint \"src/**/*.ts\" \"test/**/*.ts\"",
     "format": "prettier --write .",
     "ci": "npm ci && npm run lint && npm run typecheck && npm test && npm run build",
-    "prepublishOnly": "npm run check && npm test && npm run build"
+    "install:ci": "npm ci",
+    "prepublishOnly": "npm run check"
   },
   "keywords": [
-    "node",
+    "redis",
+    "cache",
+    "store",
     "typescript",
-    "npm-package"
+    "node"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "ioredis": "^5.8.1"
+  },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/node": "^24.6.0",
