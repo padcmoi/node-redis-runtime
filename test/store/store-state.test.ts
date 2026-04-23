@@ -1,0 +1,68 @@
+import { beforeEach, describe, expect, it } from "vitest";
+import { RedisStore, configureRedisRuntimeDefaults, jsonCodec, resetRedisRuntimeDefaults } from "../../src/index.js";
+import { createFakeRedisClientFactory, createTestCredentials } from "../helpers/fake-redis.js";
+
+describe("RedisStore state", () => {
+  beforeEach(() => {
+    resetRedisRuntimeDefaults();
+  });
+
+  it("saves and reads JSON state", async () => {
+    const factory = createFakeRedisClientFactory();
+    const persistCredentials = createTestCredentials("store-save");
+
+    configureRedisRuntimeDefaults({
+      persistCredentials,
+      createClient: factory.createClient,
+    });
+
+    const store = new RedisStore("AUTH_STATE");
+    const codec = jsonCodec<{ userId: string; tries: number }>();
+
+    await store.save("login:john", { userId: "john", tries: 2 }, { codec });
+    expect(await store.state("login:john", { codec })).toEqual({ userId: "john", tries: 2 });
+  });
+
+  it("returns fallback when payload is corrupted", async () => {
+    const factory = createFakeRedisClientFactory();
+    const persistCredentials = createTestCredentials("store-fallback");
+
+    configureRedisRuntimeDefaults({
+      persistCredentials,
+      createClient: factory.createClient,
+    });
+
+    const store = new RedisStore("AUTH_STATE");
+    const codec = jsonCodec<{ userId: string }>();
+
+    const client = factory.getClient(persistCredentials);
+    await client.set("AUTH_STATE:bad_payload", "{invalid-json");
+
+    const value = await store.state("bad_payload", {
+      codec,
+      fallback: () => ({ userId: "fallback" }),
+    });
+
+    expect(value).toEqual({ userId: "fallback" });
+  });
+
+  it("deletes saved values", async () => {
+    const factory = createFakeRedisClientFactory();
+    const persistCredentials = createTestCredentials("store-delete");
+
+    configureRedisRuntimeDefaults({
+      persistCredentials,
+      createClient: factory.createClient,
+    });
+
+    const store = new RedisStore("TOKENS");
+    const codec = jsonCodec<{ active: boolean }>();
+
+    await store.save("refresh:john", { active: true }, { codec });
+    expect(await store.state("refresh:john", { codec })).toEqual({ active: true });
+
+    const deleted = await store.delete("refresh:john");
+    expect(deleted).toBe(1);
+    expect(await store.state("refresh:john", { codec })).toBeNull();
+  });
+});
