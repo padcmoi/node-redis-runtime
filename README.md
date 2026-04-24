@@ -92,22 +92,11 @@ This package keeps method naming aligned with api-starter-template usage so loca
 
 - [Express](./docs/express.md)
 - [NestJS](./docs/nestjs.md)
-- [POC guide](./docs/poc.md)
+- [Integration example](./docs/poc.md)
 
-## POC
+## Proof Of Concept (POC)
 
-A complete Docker POC is included with one app container, one persistent Redis, and one cache Redis.
-
-The Docker app runs with nodemon in container for live reload on source changes.
-
-Main routes:
-
-- GET /health
-- POST /persist/:key
-- GET /persist/:key
-- GET /persist
-- GET /cache/read?agency=...
-- GET /cache/reset
+See the dedicated guide: [Proof Of Concept (POC)](./docs/poc.md).
 
 ## Development
 
