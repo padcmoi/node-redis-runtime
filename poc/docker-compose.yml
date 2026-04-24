@@ -1,0 +1,67 @@
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: ./poc/Dockerfile
+    container_name: redis-runtime-poc-app
+    restart: unless-stopped
+    command: npm run dev -- --legacy-watch
+    environment:
+      PORT: 3000
+      REDIS_PERSIST_HOST: redis_persist
+      REDIS_PERSIST_PORT: 6379
+      REDIS_PERSIST_USER: user
+      REDIS_PERSIST_PASSWORD: password
+      REDIS_CACHE_HOST: redis_cache
+      REDIS_CACHE_PORT: 6380
+      REDIS_CACHE_USER: user
+      REDIS_CACHE_PASSWORD: password
+      POC_CACHE_DEFAULT_TTL: 10
+      POC_CACHE_TTL_MAX: 60
+    volumes:
+      - ./src:/app/poc/src
+    ports:
+      - "3000:3000"
+    depends_on:
+      redis_persist:
+        condition: service_healthy
+      redis_cache:
+        condition: service_healthy
+
+  redis_persist:
+    image: redis:7.4-alpine
+    container_name: redis-runtime-poc-persist
+    restart: unless-stopped
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_persist_data:/data
+      - ./redis_persist/redis.conf:/usr/local/etc/redis/redis.conf:ro
+      - ./redis_persist/users.acl:/usr/local/etc/redis/users.acl:ro
+    healthcheck:
+      test: ["CMD", "redis-cli", "--user", "user", "-a", "password", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redis_cache:
+    image: redis:7.4-alpine
+    container_name: redis-runtime-poc-cache
+    restart: unless-stopped
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    ports:
+      - "6380:6380"
+    volumes:
+      - redis_cache_data:/data
+      - ./redis_cache/redis.conf:/usr/local/etc/redis/redis.conf:ro
+      - ./redis_cache/users.acl:/usr/local/etc/redis/users.acl:ro
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "6380", "--user", "user", "-a", "password", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  redis_persist_data:
+  redis_cache_data:
