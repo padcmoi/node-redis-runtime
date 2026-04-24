@@ -1,6 +1,6 @@
 {
   "name": "@naskot/node-redis-runtime",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Agnostic Redis runtime with persistent store and high-performance cache for Node.js",
   "license": "MIT",
   "type": "module",
