@@ -62,4 +62,14 @@ describe("RedisRuntimeService runtime", () => {
     expect(() => factory.getClient(persistCredentials)).toThrow();
     expect(() => factory.getClient(cacheCredentials)).toThrow();
   });
+
+  it("exposes Redis constructors from runtime instance", () => {
+    const service = createRedisRuntimeService({
+      persistCredentials: createTestCredentials("service-ctors-persist"),
+      cacheCredentials: createTestCredentials("service-ctors-cache"),
+    });
+
+    expect(typeof service.RedisStore).toBe("function");
+    expect(typeof service.RedisCache).toBe("function");
+  });
 });

@@ -8,33 +8,35 @@ The runtime service centralizes Redis credentials/runtime setup and exports reus
 
 ```ts
 import { Injectable } from "@nestjs/common";
-import { RedisCache, RedisStore, createRedisRuntimeService, jsonCodec, textCodec } from "@naskot/node-redis-runtime";
+import { createRedisRuntimeService, jsonCodec, textCodec } from "@naskot/node-redis-runtime";
+
+export const redisRuntime = createRedisRuntimeService({
+  persistCredentials: {
+    host: process.env.REDIS_PERSIST_HOST ?? "redis_persist",
+    port: Number(process.env.REDIS_PERSIST_PORT ?? 6379),
+    username: process.env.REDIS_PERSIST_USER ?? "user",
+    password: process.env.REDIS_PERSIST_PASSWORD ?? "password",
+    lazyConnect: true,
+    maxRetriesPerRequest: null,
+  },
+  cacheCredentials: {
+    host: process.env.REDIS_CACHE_HOST ?? "redis_cache",
+    port: Number(process.env.REDIS_CACHE_PORT ?? 6380),
+    username: process.env.REDIS_CACHE_USER ?? "user",
+    password: process.env.REDIS_CACHE_PASSWORD ?? "password",
+    lazyConnect: true,
+    maxRetriesPerRequest: null,
+  },
+  logger: {
+    info: (message) => console.info(message),
+    warn: (message) => console.warn(message),
+    error: (message) => console.error(message),
+  },
+});
 
 @Injectable()
 export class RedisRuntimeService {
-  readonly redisRuntime = createRedisRuntimeService({
-    persistCredentials: {
-      host: process.env.REDIS_PERSIST_HOST ?? "redis_persist",
-      port: Number(process.env.REDIS_PERSIST_PORT ?? 6379),
-      username: process.env.REDIS_PERSIST_USER ?? "user",
-      password: process.env.REDIS_PERSIST_PASSWORD ?? "password",
-      lazyConnect: true,
-      maxRetriesPerRequest: null,
-    },
-    cacheCredentials: {
-      host: process.env.REDIS_CACHE_HOST ?? "redis_cache",
-      port: Number(process.env.REDIS_CACHE_PORT ?? 6380),
-      username: process.env.REDIS_CACHE_USER ?? "user",
-      password: process.env.REDIS_CACHE_PASSWORD ?? "password",
-      lazyConnect: true,
-      maxRetriesPerRequest: null,
-    },
-    logger: {
-      info: (message) => console.info(message),
-      warn: (message) => console.warn(message),
-      error: (message) => console.error(message),
-    },
-  });
+  readonly redisRuntime = redisRuntime;
 
   readonly jsonAnyCodec = jsonCodec<unknown>();
   readonly textValueCodec = textCodec;
@@ -50,7 +52,8 @@ export class RedisRuntimeService {
 
 // Export class constructors for compatibility-style imports:
 // import { RedisCache, RedisStore } from "./redis-runtime.service"
-export { RedisCache, RedisStore };
+export const RedisCache = redisRuntime.RedisCache;
+export const RedisStore = redisRuntime.RedisStore;
 ```
 
 ## Intermediary files
@@ -101,10 +104,17 @@ import { RedisCacheService } from "../redis/redis-cache.service";
 import { RedisRuntimeService } from "../redis/redis-runtime.service";
 ```
 
-Direct package import (optional):
+Runtime constructor access from package:
 
 ```ts
-import { RedisCache } from "@naskot/node-redis-runtime";
+import { createRedisRuntimeService } from "@naskot/node-redis-runtime";
+
+const runtime = createRedisRuntimeService({
+  persistCredentials: { host: "redis_persist", port: 6379, username: "user", password: "password" },
+  cacheCredentials: { host: "redis_cache", port: 6380, username: "user", password: "password" },
+});
+
+const { RedisCache } = runtime;
 ```
 
 ### Constructor
@@ -232,10 +242,17 @@ import { RedisStorageService } from "../redis/redis-storage.service";
 import { RedisRuntimeService } from "../redis/redis-runtime.service";
 ```
 
-Direct package import (optional):
+Runtime constructor access from package:
 
 ```ts
-import { RedisStore, assertRedisConnection } from "@naskot/node-redis-runtime";
+import { assertRedisConnection, createRedisRuntimeService } from "@naskot/node-redis-runtime";
+
+const runtime = createRedisRuntimeService({
+  persistCredentials: { host: "redis_persist", port: 6379, username: "user", password: "password" },
+  cacheCredentials: { host: "redis_cache", port: 6380, username: "user", password: "password" },
+});
+
+const { RedisStore } = runtime;
 ```
 
 ### Constructor

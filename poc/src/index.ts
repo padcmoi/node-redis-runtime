@@ -1,9 +1,9 @@
 import { createPocApp } from "./app.js";
 import { POC_PORT } from "./config/env.js";
-import { assertPocRedisConnections } from "./services/redis.service.js";
+import { assertRedisConnections } from "./services/redis.service.js";
 
 async function bootstrap() {
-  await assertPocRedisConnections();
+  await assertRedisConnections();
 
   const app = createPocApp();
   app.listen(POC_PORT, () => {

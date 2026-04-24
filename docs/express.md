@@ -7,7 +7,7 @@ The runtime service centralizes Redis credentials/runtime setup and exports reus
 ### `src/services/redis.service.ts`
 
 ```ts
-import { RedisCache, RedisStore, createRedisRuntimeService, jsonCodec, textCodec } from "@naskot/node-redis-runtime";
+import { createRedisRuntimeService, jsonCodec, textCodec } from "@naskot/node-redis-runtime";
 
 export const redisRuntime = createRedisRuntimeService({
   persistCredentials: {
@@ -43,7 +43,8 @@ export async function assertRedisConnections() {
 
 // Export class constructors for compatibility-style imports:
 // import { RedisCache, RedisStore } from "./services/redis.service"
-export { RedisCache, RedisStore };
+export const RedisCache = redisRuntime.RedisCache;
+export const RedisStore = redisRuntime.RedisStore;
 ```
 
 ## Intermediary files
@@ -86,10 +87,17 @@ import { agencyCache, geoCompletionCache, storageCache, floodCache } from "../re
 import { jsonAnyCodec, textValueCodec } from "../services/redis.service";
 ```
 
-Direct package import (optional):
+Runtime constructor access from package:
 
 ```ts
-import { RedisCache } from "@naskot/node-redis-runtime";
+import { createRedisRuntimeService } from "@naskot/node-redis-runtime";
+
+const runtime = createRedisRuntimeService({
+  persistCredentials: { host: "redis_persist", port: 6379, username: "user", password: "password" },
+  cacheCredentials: { host: "redis_cache", port: 6380, username: "user", password: "password" },
+});
+
+const { RedisCache } = runtime;
 ```
 
 ### Constructor
@@ -217,10 +225,17 @@ import { storage } from "../redis/storage";
 import { jsonAnyCodec } from "../services/redis.service";
 ```
 
-Direct package import (optional):
+Runtime constructor access from package:
 
 ```ts
-import { RedisStore, assertRedisConnection } from "@naskot/node-redis-runtime";
+import { assertRedisConnection, createRedisRuntimeService } from "@naskot/node-redis-runtime";
+
+const runtime = createRedisRuntimeService({
+  persistCredentials: { host: "redis_persist", port: 6379, username: "user", password: "password" },
+  cacheCredentials: { host: "redis_cache", port: 6380, username: "user", password: "password" },
+});
+
+const { RedisStore } = runtime;
 ```
 
 ### Constructor

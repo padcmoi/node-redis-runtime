@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { RedisStore, configureRedisRuntimeDefaults, jsonCodec, resetRedisRuntimeDefaults } from "../../src/index.js";
+import { createRedisRuntimeService, jsonCodec, resetRedisRuntimeDefaults } from "../../src/index.js";
 import { createFakeRedisClientFactory, createTestCredentials } from "../helpers/fake-redis.js";
 
 describe("RedisStore state", () => {
@@ -11,11 +11,13 @@ describe("RedisStore state", () => {
     const factory = createFakeRedisClientFactory();
     const persistCredentials = createTestCredentials("store-save");
 
-    configureRedisRuntimeDefaults({
+    const redisRuntime = createRedisRuntimeService({
       persistCredentials,
+      cacheCredentials: createTestCredentials("store-save-cache"),
       createClient: factory.createClient,
     });
 
+    const { RedisStore } = redisRuntime;
     const store = new RedisStore("AUTH_STATE");
     const codec = jsonCodec<{ userId: string; tries: number }>();
 
@@ -27,11 +29,13 @@ describe("RedisStore state", () => {
     const factory = createFakeRedisClientFactory();
     const persistCredentials = createTestCredentials("store-fallback");
 
-    configureRedisRuntimeDefaults({
+    const redisRuntime = createRedisRuntimeService({
       persistCredentials,
+      cacheCredentials: createTestCredentials("store-fallback-cache"),
       createClient: factory.createClient,
     });
 
+    const { RedisStore } = redisRuntime;
     const store = new RedisStore("AUTH_STATE");
     const codec = jsonCodec<{ userId: string }>();
 
@@ -50,11 +54,13 @@ describe("RedisStore state", () => {
     const factory = createFakeRedisClientFactory();
     const persistCredentials = createTestCredentials("store-delete");
 
-    configureRedisRuntimeDefaults({
+    const redisRuntime = createRedisRuntimeService({
       persistCredentials,
+      cacheCredentials: createTestCredentials("store-delete-cache"),
       createClient: factory.createClient,
     });
 
+    const { RedisStore } = redisRuntime;
     const store = new RedisStore("TOKENS");
     const codec = jsonCodec<{ active: boolean }>();
 

@@ -5,9 +5,10 @@
 - Introduced `RedisStore` for persistent Redis state operations (`state`, `save`, `patch`, `delete`, `listKeys`, `listEntries`).
 - Introduced `RedisCache` for fast TTL cache operations (`get`, `set`, `setJsonNow`, `getJsonNow`, `getJsonCacheByReq`, `getJsonCacheByKey`, `clearCaches`).
 - Added `RedisRuntimeService` and `createRedisRuntimeService` for service-style integration with both persist and cache credentials.
+- Changed constructor exposure: `RedisCache` and `RedisStore` are no longer exported directly from package root and are now exposed via `redisRuntime` (`createRedisRuntimeService(...).RedisCache/.RedisStore`).
 - Added runtime defaults helpers: `configureRedisRuntimeDefaults`, `getRedisRuntimeDefaults`, `resetRedisRuntimeDefaults`.
 - Added codecs helpers: `jsonCodec` and `textCodec`.
-- Added complete unit test suite (18 tests) for store/cache/service behavior.
+- Added complete unit test suite (20 tests) for store/cache/service behavior.
 - Split tests by business logic into dedicated folders (`test/cache`, `test/store`, `test/service`) for easier maintenance.
 - Added full Docker POC with routes/controllers, dual Redis setup (`redis_persist` + `redis_cache`) and working endpoints.
 - Added ACL + Redis configuration files for POC environments.

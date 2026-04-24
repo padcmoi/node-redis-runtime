@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { RedisStore, configureRedisRuntimeDefaults, jsonCodec, resetRedisRuntimeDefaults } from "../../src/index.js";
+import { createRedisRuntimeService, jsonCodec, resetRedisRuntimeDefaults } from "../../src/index.js";
 import { createFakeRedisClientFactory, createTestCredentials } from "../helpers/fake-redis.js";
 
 describe("RedisStore patch", () => {
@@ -11,11 +11,13 @@ describe("RedisStore patch", () => {
     const factory = createFakeRedisClientFactory();
     const persistCredentials = createTestCredentials("store-patch");
 
-    configureRedisRuntimeDefaults({
+    const redisRuntime = createRedisRuntimeService({
       persistCredentials,
+      cacheCredentials: createTestCredentials("store-patch-cache"),
       createClient: factory.createClient,
     });
 
+    const { RedisStore } = redisRuntime;
     const store = new RedisStore("COUNTERS");
     const codec = jsonCodec<{ count: number }>();
 

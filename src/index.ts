@@ -1,6 +1,5 @@
-export { RedisCache } from "./redisCache.js";
 export { jsonCodec, RedisPool, textCodec } from "./redisShared.js";
-export { assertRedisConnection, RedisStore } from "./RedisStore.js";
+export { assertRedisConnection } from "./RedisStore.js";
 export { configureRedisRuntimeDefaults, getRedisRuntimeDefaults, resetRedisRuntimeDefaults } from "./runtimeDefaults.js";
 export { createRedisRuntimeService, RedisRuntimeService } from "./service.js";
 

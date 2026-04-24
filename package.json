@@ -13,16 +13,6 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./redisCache": {
-      "types": "./dist/redisCache.d.ts",
-      "import": "./dist/redisCache.js",
-      "require": "./dist/redisCache.cjs"
-    },
-    "./RedisStore": {
-      "types": "./dist/RedisStore.d.ts",
-      "import": "./dist/RedisStore.js",
-      "require": "./dist/RedisStore.cjs"
-    },
     "./redisShared": {
       "types": "./dist/redisShared.d.ts",
       "import": "./dist/redisShared.js",

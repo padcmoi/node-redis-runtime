@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { RedisCache, configureRedisRuntimeDefaults, jsonCodec, resetRedisRuntimeDefaults } from "../../src/index.js";
+import { createRedisRuntimeService, jsonCodec, resetRedisRuntimeDefaults } from "../../src/index.js";
 import { createFakeRedisClientFactory, createTestCredentials } from "../helpers/fake-redis.js";
 
 describe("RedisCache basic", () => {
@@ -11,11 +11,13 @@ describe("RedisCache basic", () => {
     const factory = createFakeRedisClientFactory();
     const cacheCredentials = createTestCredentials("cache-basic");
 
-    configureRedisRuntimeDefaults({
+    const redisRuntime = createRedisRuntimeService({
+      persistCredentials: createTestCredentials("cache-basic-persist"),
       cacheCredentials,
       createClient: factory.createClient,
     });
 
+    const { RedisCache } = redisRuntime;
     const cache = new RedisCache("SESSION_CACHE", { defaultTtl: 30, ttlMax: 60 });
     await cache.setJsonNow("session:1", { userId: "u-1" }, 10);
 
@@ -27,11 +29,13 @@ describe("RedisCache basic", () => {
     const factory = createFakeRedisClientFactory();
     const cacheCredentials = createTestCredentials("cache-del");
 
-    configureRedisRuntimeDefaults({
+    const redisRuntime = createRedisRuntimeService({
+      persistCredentials: createTestCredentials("cache-del-persist"),
       cacheCredentials,
       createClient: factory.createClient,
     });
 
+    const { RedisCache } = redisRuntime;
     const cache = new RedisCache("CACHE_NS", { defaultTtl: 30, ttlMax: 60 });
     const codec = jsonCodec<{ value: string }>();
 
@@ -48,11 +52,13 @@ describe("RedisCache basic", () => {
     const factory = createFakeRedisClientFactory();
     const cacheCredentials = createTestCredentials("cache-ttl");
 
-    configureRedisRuntimeDefaults({
+    const redisRuntime = createRedisRuntimeService({
+      persistCredentials: createTestCredentials("cache-ttl-persist"),
       cacheCredentials,
       createClient: factory.createClient,
     });
 
+    const { RedisCache } = redisRuntime;
     const cache = new RedisCache("STRICT", { defaultTtl: 10, ttlMax: 15 });
 
     await expect(cache.setJsonNow("x", { ok: true }, 20)).resolves.toBeUndefined();

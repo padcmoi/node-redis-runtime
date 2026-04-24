@@ -13,12 +13,34 @@ Install the package with npm in your application.
 
 ## API summary
 
+### Runtime options
+
+`createRedisRuntimeService(options)` accepts:
+
+- `persistCredentials`: Redis credentials/options for persistent data (RedisStore).
+- `cacheCredentials`: Redis credentials/options for volatile data (RedisCache).
+- `logger` (optional): `{ info, warn, error }` hooks used by the runtime.
+
+Both `persistCredentials` and `cacheCredentials` support standard ioredis options, including:
+
+- `host`, `port`, `username`, `password`
+- `lazyConnect`
+- `maxRetriesPerRequest`
+- `enableReadyCheck`
+
+`enableReadyCheck` is forwarded to ioredis:
+
+- `true`: run Redis ready check before emitting `ready`.
+- `false`: skip Redis ready check.
+
 ### High-level service
 
 - `createRedisRuntimeService(options)`: create one runtime instance and apply defaults.
 - `RedisRuntimeService`: runtime class behind the factory.
 - `store(namespace, credentials optional)`: create a `RedisStore` bound to a namespace.
 - `cache(namespace, options optional)`: create a `RedisCache` bound to a namespace.
+- `redisRuntime.RedisStore`: constructor exposed by the runtime instance.
+- `redisRuntime.RedisCache`: constructor exposed by the runtime instance.
 - `configureDefaults()`: push runtime credentials/logger into global defaults for constructors.
 
 ### Persistent store

@@ -27,7 +27,7 @@ It proves that:
 
 ## Runtime model
 
-- `redis.service.ts` configures credentials and exports `RedisCache` / `RedisStore` constructors
+- `redis.service.ts` configures credentials and exports `RedisCache` / `RedisStore` constructors from `redisRuntime`
 - `redis/cache.ts` instantiates cache namespaces (`agencyCache`, `geoCompletionCache`, `storageCache`, `floodCache`)
 - `redis/storage.ts` instantiates persistent storage (`pocStorage`)
 - Controllers only consume these instances (no hidden setup in controllers)

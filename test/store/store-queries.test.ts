@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { RedisStore, configureRedisRuntimeDefaults, jsonCodec, resetRedisRuntimeDefaults } from "../../src/index.js";
+import { createRedisRuntimeService, jsonCodec, resetRedisRuntimeDefaults } from "../../src/index.js";
 import { createFakeRedisClientFactory, createTestCredentials } from "../helpers/fake-redis.js";
 
 describe("RedisStore queries", () => {
@@ -11,11 +11,13 @@ describe("RedisStore queries", () => {
     const factory = createFakeRedisClientFactory();
     const persistCredentials = createTestCredentials("store-list");
 
-    configureRedisRuntimeDefaults({
+    const redisRuntime = createRedisRuntimeService({
       persistCredentials,
+      cacheCredentials: createTestCredentials("store-list-cache"),
       createClient: factory.createClient,
     });
 
+    const { RedisStore } = redisRuntime;
     const store = new RedisStore("APP");
     const codec = jsonCodec<{ value: string }>();
 
@@ -32,11 +34,13 @@ describe("RedisStore queries", () => {
     const factory = createFakeRedisClientFactory();
     const persistCredentials = createTestCredentials("store-keys");
 
-    configureRedisRuntimeDefaults({
+    const redisRuntime = createRedisRuntimeService({
       persistCredentials,
+      cacheCredentials: createTestCredentials("store-keys-cache"),
       createClient: factory.createClient,
     });
 
+    const { RedisStore } = redisRuntime;
     const store = new RedisStore("APP_STORE");
     const codec = jsonCodec<{ value: string }>();
 

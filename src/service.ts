@@ -11,6 +11,9 @@ export type RedisRuntimeServiceOptions = {
 };
 
 export class RedisRuntimeService {
+  readonly RedisCache = RedisCache;
+  readonly RedisStore = RedisStore;
+
   private readonly persistCredentials: RedisCredentials;
   private readonly cacheCredentials: RedisCredentials;
   private readonly logger?: RedisRuntimeLogger;

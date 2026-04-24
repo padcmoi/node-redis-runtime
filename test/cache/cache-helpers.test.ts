@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { RedisCache, configureRedisRuntimeDefaults, jsonCodec, resetRedisRuntimeDefaults } from "../../src/index.js";
+import { createRedisRuntimeService, jsonCodec, resetRedisRuntimeDefaults } from "../../src/index.js";
 import { createFakeRedisClientFactory, createTestCredentials } from "../helpers/fake-redis.js";
 
 describe("RedisCache helpers", () => {
@@ -11,11 +11,13 @@ describe("RedisCache helpers", () => {
     const factory = createFakeRedisClientFactory();
     const cacheCredentials = createTestCredentials("cache-compute");
 
-    configureRedisRuntimeDefaults({
+    const redisRuntime = createRedisRuntimeService({
+      persistCredentials: createTestCredentials("cache-compute-persist"),
       cacheCredentials,
       createClient: factory.createClient,
     });
 
+    const { RedisCache } = redisRuntime;
     const cache = new RedisCache("SEARCH", { defaultTtl: 30, ttlMax: 60 });
     let computeHits = 0;
 
@@ -48,11 +50,13 @@ describe("RedisCache helpers", () => {
     const factory = createFakeRedisClientFactory();
     const cacheCredentials = createTestCredentials("cache-ttl-by-key");
 
-    configureRedisRuntimeDefaults({
+    const redisRuntime = createRedisRuntimeService({
+      persistCredentials: createTestCredentials("cache-ttl-by-key-persist"),
       cacheCredentials,
       createClient: factory.createClient,
     });
 
+    const { RedisCache } = redisRuntime;
     const cache = new RedisCache("SEARCH_TTL", { defaultTtl: 30, ttlMax: 60 });
     let computeHits = 0;
 
@@ -97,11 +101,13 @@ describe("RedisCache helpers", () => {
     const factory = createFakeRedisClientFactory();
     const cacheCredentials = createTestCredentials("cache-req");
 
-    configureRedisRuntimeDefaults({
+    const redisRuntime = createRedisRuntimeService({
+      persistCredentials: createTestCredentials("cache-req-persist"),
       cacheCredentials,
       createClient: factory.createClient,
     });
 
+    const { RedisCache } = redisRuntime;
     const cache = new RedisCache("API", { defaultTtl: 30, ttlMax: 60 });
     let calls = 0;
 
@@ -141,11 +147,13 @@ describe("RedisCache helpers", () => {
     const factory = createFakeRedisClientFactory();
     const cacheCredentials = createTestCredentials("cache-clear");
 
-    configureRedisRuntimeDefaults({
+    const redisRuntime = createRedisRuntimeService({
+      persistCredentials: createTestCredentials("cache-clear-persist"),
       cacheCredentials,
       createClient: factory.createClient,
     });
 
+    const { RedisCache } = redisRuntime;
     const cache = new RedisCache("CACHE", { defaultTtl: 30, ttlMax: 60 });
     const codec = jsonCodec<{ value: number }>();
 
@@ -161,11 +169,13 @@ describe("RedisCache helpers", () => {
     const factory = createFakeRedisClientFactory();
     const cacheCredentials = createTestCredentials("cache-generic");
 
-    configureRedisRuntimeDefaults({
+    const redisRuntime = createRedisRuntimeService({
+      persistCredentials: createTestCredentials("cache-generic-persist"),
       cacheCredentials,
       createClient: factory.createClient,
     });
 
+    const { RedisCache } = redisRuntime;
     const cache = new RedisCache("CACHE_GENERIC", { defaultTtl: 30, ttlMax: 60 });
     const codec = jsonCodec<{ tag: string }>();
     let hits = 0;
@@ -197,11 +207,13 @@ describe("RedisCache helpers", () => {
     const factory = createFakeRedisClientFactory();
     const cacheCredentials = createTestCredentials("cache-direct");
 
-    configureRedisRuntimeDefaults({
+    const redisRuntime = createRedisRuntimeService({
+      persistCredentials: createTestCredentials("cache-direct-persist"),
       cacheCredentials,
       createClient: factory.createClient,
     });
 
+    const { RedisCache } = redisRuntime;
     const cache = new RedisCache("CACHE_DIRECT", { defaultTtl: 30, ttlMax: 60 });
     let hits = 0;
 
