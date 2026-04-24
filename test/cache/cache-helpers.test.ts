@@ -239,4 +239,76 @@ describe("RedisCache helpers", () => {
     expect(second).toEqual(first);
     expect(hits).toBe(1);
   });
+
+  it("does not cache null values by default", async () => {
+    const factory = createFakeRedisClientFactory();
+    const cacheCredentials = createTestCredentials("cache-null-default");
+
+    const redisRuntime = createRedisRuntimeService({
+      persistCredentials: createTestCredentials("cache-null-default-persist"),
+      cacheCredentials,
+      createClient: factory.createClient,
+    });
+
+    const { RedisCache } = redisRuntime;
+    const cache = new RedisCache("CACHE_NULL_DEFAULT", { defaultTtl: 30, ttlMax: 60 });
+    let hits = 0;
+
+    const first = await cache.getCacheIfExists("nullable", {
+      ttl: 20,
+      compute: () => {
+        hits += 1;
+        return Promise.resolve(null);
+      },
+    });
+
+    const second = await cache.getCacheIfExists("nullable", {
+      ttl: 20,
+      compute: () => {
+        hits += 1;
+        return Promise.resolve(null);
+      },
+    });
+
+    expect(first).toBeNull();
+    expect(second).toBeNull();
+    expect(hits).toBe(2);
+  });
+
+  it("caches null values when cacheNull is enabled", async () => {
+    const factory = createFakeRedisClientFactory();
+    const cacheCredentials = createTestCredentials("cache-null-enabled");
+
+    const redisRuntime = createRedisRuntimeService({
+      persistCredentials: createTestCredentials("cache-null-enabled-persist"),
+      cacheCredentials,
+      createClient: factory.createClient,
+    });
+
+    const { RedisCache } = redisRuntime;
+    const cache = new RedisCache("CACHE_NULL_ENABLED", { defaultTtl: 30, ttlMax: 60 });
+    let hits = 0;
+
+    const first = await cache.getCacheIfExists("nullable", {
+      ttl: 20,
+      cacheNull: true,
+      compute: () => {
+        hits += 1;
+        return Promise.resolve(null);
+      },
+    });
+
+    const second = await cache.getCacheIfExists("nullable", {
+      ttl: 20,
+      cacheNull: true,
+      compute: () => {
+        hits += 1;
+        return Promise.resolve(null);
+      },
+    });
+
+    expect(first).toBeNull();
+    expect(second).toBeNull();
+    expect(hits).toBe(1);
+  });
 });

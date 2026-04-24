@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { createRedisRuntimeService, resetRedisRuntimeDefaults } from "../../src/index.js";
+import { assertRedisConnection, createRedisRuntimeService, resetRedisRuntimeDefaults } from "../../src/index.js";
 
 describe("RedisRuntimeService connectivity", () => {
   beforeEach(() => {
@@ -24,5 +24,19 @@ describe("RedisRuntimeService connectivity", () => {
 
     await expect(service.assertPersistConnection({ timeoutMs: 150 })).rejects.toBeInstanceOf(Error);
     await expect(service.assertCacheConnection({ timeoutMs: 150 })).rejects.toBeInstanceOf(Error);
+  });
+
+  it("fails assertRedisConnection helper with unreachable redis", async () => {
+    await expect(
+      assertRedisConnection(
+        {
+          host: "127.0.0.1",
+          port: 1,
+          username: "user",
+          password: "password",
+        },
+        { timeoutMs: 150 }
+      )
+    ).rejects.toBeInstanceOf(Error);
   });
 });

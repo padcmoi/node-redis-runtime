@@ -50,6 +50,28 @@ describe("RedisStore state", () => {
     expect(value).toEqual({ userId: "fallback" });
   });
 
+  it("returns fallback when key is missing", async () => {
+    const factory = createFakeRedisClientFactory();
+    const persistCredentials = createTestCredentials("store-missing");
+
+    const redisRuntime = createRedisRuntimeService({
+      persistCredentials,
+      cacheCredentials: createTestCredentials("store-missing-cache"),
+      createClient: factory.createClient,
+    });
+
+    const { RedisStore } = redisRuntime;
+    const store = new RedisStore("AUTH_STATE");
+    const codec = jsonCodec<{ userId: string }>();
+
+    const value = await store.state("missing", {
+      codec,
+      fallback: () => ({ userId: "fallback-missing" }),
+    });
+
+    expect(value).toEqual({ userId: "fallback-missing" });
+  });
+
   it("deletes saved values", async () => {
     const factory = createFakeRedisClientFactory();
     const persistCredentials = createTestCredentials("store-delete");
@@ -70,5 +92,22 @@ describe("RedisStore state", () => {
     const deleted = await store.delete("refresh:john");
     expect(deleted).toBe(1);
     expect(await store.state("refresh:john", { codec })).toBeNull();
+  });
+
+  it("returns 0 when deleting a missing key", async () => {
+    const factory = createFakeRedisClientFactory();
+    const persistCredentials = createTestCredentials("store-delete-missing");
+
+    const redisRuntime = createRedisRuntimeService({
+      persistCredentials,
+      cacheCredentials: createTestCredentials("store-delete-missing-cache"),
+      createClient: factory.createClient,
+    });
+
+    const { RedisStore } = redisRuntime;
+    const store = new RedisStore("TOKENS");
+
+    const deleted = await store.delete("missing");
+    expect(deleted).toBe(0);
   });
 });

@@ -27,7 +27,9 @@ describe("RedisStore queries", () => {
 
     const entries = await store.listEntries("entries");
     const keys = entries.map((entry) => entry.key).sort();
+    const values = entries.map((entry) => entry.value).sort();
     expect(keys).toEqual(["APP:entries:alpha", "APP:entries:beta"]);
+    expect(values).toEqual(['{"value":"A"}', '{"value":"B"}']);
   });
 
   it("builds normalized keys and lists keys by folder", async () => {

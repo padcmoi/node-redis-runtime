@@ -1,4 +1,4 @@
-import { RedisPool } from "./redisShared.js";
+import { RedisPool, textCodec } from "./redisShared.js";
 import { getRedisRuntimeDefaults } from "./runtimeDefaults.js";
 import type { Codec, RedisCredentials, RedisPoolEntry, RedisRuntimeLogger, RequestLike } from "./types.js";
 
@@ -59,6 +59,10 @@ export class RedisCache {
   key(...parts: string[]) {
     const safe = parts.filter((part) => part.trim().length > 0).map((part) => part.replace(/\s+/g, "_"));
     return [this.namespace, ...safe].join(":");
+  }
+
+  private nullMarker(name: string) {
+    return `${name}:{NULL}`;
   }
 
   private assertTtl(ttl: number) {
@@ -153,13 +157,25 @@ export class RedisCache {
     const cached = await this.get<T>(name, { codec: opts.codec });
     if (cached !== null) return cached;
 
+    if (opts.cacheNull) {
+      const marker = await this.get<string>(this.nullMarker(name), { codec: textCodec });
+      if (marker === "1") return null as T;
+    }
+
     const value = await opts.compute();
 
     if (value === null || value === undefined) {
       if (opts.cacheNull) {
-        await this.setBestEffort(name, value, { codec: opts.codec, ttl: opts.ttl });
+        await this.del(name);
+        await this.setBestEffort(this.nullMarker(name), "1", { codec: textCodec, ttl: opts.ttl });
+      } else {
+        await this.del(this.nullMarker(name));
       }
       return value;
+    }
+
+    if (opts.cacheNull) {
+      await this.del(this.nullMarker(name));
     }
 
     await this.setBestEffort(name, value, { codec: opts.codec, ttl: opts.ttl });
