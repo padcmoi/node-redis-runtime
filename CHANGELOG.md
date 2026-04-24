@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## [Unreleased] - yyyy-mm-dd
+## [1.0.0] - 2026-04-24
 
 - Introduced `RedisStore` for persistent Redis state operations (`state`, `save`, `patch`, `delete`, `listKeys`, `listEntries`).
 - Introduced `RedisCache` for fast TTL cache operations (`get`, `set`, `setJsonNow`, `getJsonNow`, `getJsonCacheByReq`, `getJsonCacheByKey`, `clearCaches`).
